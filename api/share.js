@@ -24,7 +24,7 @@ export default function handler(req, res) {
   }
 
   const person     = decodePerson(d);
-  const sharerName = from ? decodeURIComponent(from) : null;
+  const sharerName = from ? decodeURIComponent(from) : 'Someone';
   const appUrl     = `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : ''}/?d=${d}`;
 
   // Build personalised preview strings

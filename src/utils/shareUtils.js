@@ -5,23 +5,23 @@
  * Only the fields a recipient needs are serialized (no internal IDs).
  */
 export function encodePerson(person) {
-  const payload = {
-    n:  person.name         || '',   // name
-    pn: person.partnerName  || '',   // partnerName
-    b:  person.birthday     || '',   // birthday
-    et: person.eventType    || 'Birthday',
-    r:  person.relationship || 'Friend',
-    c:  person.country      || '',
-    st: person.state        || '',
-    ci: person.city         || '',
-    a1: person.address1     || '',
-    a2: person.address2     || '',
-    z:  person.zip          || '',
-    no: person.notes        || '',
-  };
-  const json    = JSON.stringify(payload);
-  const b64     = btoa(unescape(encodeURIComponent(json)));
-  // Make URL-safe: replace + / = with - _ (no padding)
+  // Only include fields that have actual values — keeps the URL short
+  const payload = {};
+  if (person.name)         payload.n  = person.name;
+  if (person.partnerName)  payload.pn = person.partnerName;
+  if (person.birthday)     payload.b  = person.birthday;
+  if (person.eventType && person.eventType !== 'Birthday') payload.et = person.eventType;
+  if (person.relationship && person.relationship !== 'Friend') payload.r = person.relationship;
+  if (person.country)      payload.c  = person.country;
+  if (person.state)        payload.st = person.state;
+  if (person.city)         payload.ci = person.city;
+  if (person.address1)     payload.a1 = person.address1;
+  if (person.address2)     payload.a2 = person.address2;
+  if (person.zip)          payload.z  = person.zip;
+  if (person.notes)        payload.no = person.notes;
+
+  const json = JSON.stringify(payload);
+  const b64  = btoa(unescape(encodeURIComponent(json)));
   return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
@@ -71,12 +71,13 @@ export function buildShareUrl(person, sharerName = '') {
  * Falls back to clipboard copy if Web Share API isn't available.
  */
 export async function sharePersonNative(person, sharerName = '') {
-  const url  = buildShareUrl(person, sharerName);
-  const name = person.eventType === 'Wedding Anniversary' && person.partnerName
+  const url      = buildShareUrl(person, sharerName);
+  const name     = person.eventType === 'Wedding Anniversary' && person.partnerName
     ? `${person.name} & ${person.partnerName}`
     : person.name;
-  const from = sharerName ? `${sharerName} ` : '';
-  const text = `🎂 ${from}wants you to remember ${name}'s ${person.eventType === 'Wedding Anniversary' ? 'anniversary' : 'birthday'} on Atithi!`;
+  const event    = person.eventType === 'Wedding Anniversary' ? 'anniversary' : 'birthday';
+  const from     = sharerName || 'Someone';
+  const text     = `${from} wants you to remember ${name}'s ${event} — tap to add them on Atithi! 🎂`;
 
   if (navigator.share) {
     await navigator.share({ title: 'Atithi — Remember Every Moment', text, url });
