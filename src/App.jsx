@@ -62,19 +62,11 @@ export default function App() {
   }
 
   // ── Onboarding ────────────────────────────────────────────────────────────
+  // importPerson is intentionally NOT shown here — we keep it in state and
+  // it will appear automatically once onboarding completes and the main app
+  // renders (so the user finishes their profile before seeing the import prompt).
   if (!onboarded) {
-    return (
-      <>
-        <Onboarding onComplete={completeOnboarding} />
-        {importPerson && (
-          <ImportModal
-            person={importPerson}
-            onImport={p => { addPerson(p); setImportPerson(null); }}
-            onDismiss={() => setImportPerson(null)}
-          />
-        )}
-      </>
-    );
+    return <Onboarding onComplete={completeOnboarding} />;
   }
 
   // ── Dashboard data ────────────────────────────────────────────────────────

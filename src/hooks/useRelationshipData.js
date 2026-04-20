@@ -15,11 +15,9 @@ const KEYS = {
 };
 const CURRENT_VERSION = 1;
 
+// One demo event so new users see how the app works — not overwhelming.
 const SAMPLE = [
-  { id: '1', eventType: 'Birthday',            name: 'Priya Sharma',  partnerName: '',     birthday: '1995-04-22', relationship: 'Friend',    country: 'India',         state: 'Maharashtra', city: 'Mumbai',    address1: '', address2: '', zip: '', notes: 'Loves travel and photography' },
-  { id: '2', eventType: 'Birthday',            name: 'Rohan Mehta',   partnerName: '',     birthday: '1992-05-10', relationship: 'Colleague', country: 'United States', state: 'Washington',  city: 'Seattle',   address1: '', address2: '', zip: '', notes: 'Into gaming and coffee'       },
-  { id: '3', eventType: 'Birthday',            name: 'Mom',           partnerName: '',     birthday: '1965-06-18', relationship: 'Family',    country: 'India',         state: 'Delhi',       city: 'New Delhi', address1: '', address2: '', zip: '', notes: 'Loves cooking and reading'    },
-  { id: '4', eventType: 'Wedding Anniversary', name: 'Arjun',         partnerName: 'Neha', birthday: '2019-02-14', relationship: 'Friend',    country: 'India',         state: 'Karnataka',   city: 'Bengaluru', address1: '', address2: '', zip: '', notes: 'Love wine and travel'         },
+  { id: '1', eventType: 'Birthday', name: 'Priya Sharma', partnerName: '', birthday: '1995-04-22', relationship: 'Friend', country: 'India', state: 'Maharashtra', city: 'Mumbai', address1: '', address2: '', zip: '', notes: 'Loves travel and photography' },
 ];
 
 function migrate(data) {
