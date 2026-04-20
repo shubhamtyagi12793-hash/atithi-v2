@@ -2,27 +2,26 @@
 import { useState, useEffect } from 'react';
 import { DEFAULT_REGION } from '../atithi.config';
 
-// ── Storage keys ──────────────────────────────────────────────────────────────
 const KEYS = {
   people:    'atithi_people',
   version:   'atithi_version',
   onboarded: 'atithi_onboarded',
   region:    'atithi_region',
   yourName:  'atithi_your_name',
-  status:    'atithi_gift_status',   // JSON map: { [personId_year]: 'pending'|'ordered'|'gifted' }
-  history:   'atithi_gift_history',  // JSON array of history entries
+  userEmail: 'atithi_user_email',
+  userPhone: 'atithi_user_phone',
+  status:    'atithi_gift_status',
+  history:   'atithi_gift_history',
 };
 const CURRENT_VERSION = 1;
 
-// ── Sample seed data ──────────────────────────────────────────────────────────
 const SAMPLE = [
-  { id: '1', eventType: 'Birthday',            name: 'Priya Sharma',  partnerName: '',     birthday: '1995-04-22', relationship: 'Friend',    country: 'India',         state: 'Maharashtra', city: 'Mumbai',    address1: '', address2: '', zip: '',      notes: 'Loves travel and photography' },
-  { id: '2', eventType: 'Birthday',            name: 'Rohan Mehta',   partnerName: '',     birthday: '1992-05-10', relationship: 'Colleague', country: 'United States', state: 'Washington',  city: 'Seattle',   address1: '', address2: '', zip: '',      notes: 'Into gaming and coffee'       },
-  { id: '3', eventType: 'Birthday',            name: 'Mom',           partnerName: '',     birthday: '1965-06-18', relationship: 'Family',    country: 'India',         state: 'Delhi',       city: 'New Delhi', address1: '', address2: '', zip: '',      notes: 'Loves cooking and reading'    },
-  { id: '4', eventType: 'Wedding Anniversary', name: 'Arjun',         partnerName: 'Neha', birthday: '2019-02-14', relationship: 'Friend',    country: 'India',         state: 'Karnataka',   city: 'Bengaluru', address1: '', address2: '', zip: '',      notes: 'Love wine and travel'         },
+  { id: '1', eventType: 'Birthday',            name: 'Priya Sharma',  partnerName: '',     birthday: '1995-04-22', relationship: 'Friend',    country: 'India',         state: 'Maharashtra', city: 'Mumbai',    address1: '', address2: '', zip: '', notes: 'Loves travel and photography' },
+  { id: '2', eventType: 'Birthday',            name: 'Rohan Mehta',   partnerName: '',     birthday: '1992-05-10', relationship: 'Colleague', country: 'United States', state: 'Washington',  city: 'Seattle',   address1: '', address2: '', zip: '', notes: 'Into gaming and coffee'       },
+  { id: '3', eventType: 'Birthday',            name: 'Mom',           partnerName: '',     birthday: '1965-06-18', relationship: 'Family',    country: 'India',         state: 'Delhi',       city: 'New Delhi', address1: '', address2: '', zip: '', notes: 'Loves cooking and reading'    },
+  { id: '4', eventType: 'Wedding Anniversary', name: 'Arjun',         partnerName: 'Neha', birthday: '2019-02-14', relationship: 'Friend',    country: 'India',         state: 'Karnataka',   city: 'Bengaluru', address1: '', address2: '', zip: '', notes: 'Love wine and travel'         },
 ];
 
-// ── Migration: ensures all fields exist on older records ─────────────────────
 function migrate(data) {
   return data.map(p => ({
     eventType: 'Birthday', partnerName: '', country: 'United States',
@@ -35,20 +34,17 @@ function load(key, fallback) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
   catch { return fallback; }
 }
-
 function save(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
 export function useRelationshipData() {
 
-  // ── People ─────────────────────────────────────────────────────────────────
+  // ── People ──────────────────────────────────────────────────────────────────
   const [people, setPeople] = useState(() => {
     const version = parseInt(localStorage.getItem(KEYS.version) || '0');
     const stored  = localStorage.getItem(KEYS.people)
-                 || localStorage.getItem('tithi_data'); // backward compat
-
+                 || localStorage.getItem('tithi_data');
     if (!stored) {
       save(KEYS.people,  SAMPLE);
       save(KEYS.version, CURRENT_VERSION);
@@ -63,7 +59,6 @@ export function useRelationshipData() {
     }
     return migrate(parsed);
   });
-
   useEffect(() => { save(KEYS.people, people); }, [people]);
 
   function addPerson(data) {
@@ -78,17 +73,24 @@ export function useRelationshipData() {
     setPeople(prev => prev.filter(p => p.id !== id));
   }
 
-  // ── Onboarding ─────────────────────────────────────────────────────────────
+  // ── Onboarding ──────────────────────────────────────────────────────────────
   const [onboarded, setOnboarded] = useState(
     () => localStorage.getItem(KEYS.onboarded) === 'true'
        || localStorage.getItem('tithi_onboarded') === 'true'
   );
-  function completeOnboarding() {
+  function completeOnboarding(profile) {
+    // profile: { name, email, phone, region }
+    if (profile) {
+      if (profile.name)   { localStorage.setItem(KEYS.yourName,  profile.name);   setYourNameState(profile.name); }
+      if (profile.email)  { localStorage.setItem(KEYS.userEmail, profile.email);  setUserEmailState(profile.email); }
+      if (profile.phone)  { localStorage.setItem(KEYS.userPhone, profile.phone);  setUserPhoneState(profile.phone); }
+      if (profile.region) { localStorage.setItem(KEYS.region,    profile.region); setRegionState(profile.region); }
+    }
     localStorage.setItem(KEYS.onboarded, 'true');
     setOnboarded(true);
   }
 
-  // ── Region (US / IN) ───────────────────────────────────────────────────────
+  // ── Region ──────────────────────────────────────────────────────────────────
   const [region, setRegionState] = useState(
     () => localStorage.getItem(KEYS.region) || DEFAULT_REGION
   );
@@ -97,7 +99,7 @@ export function useRelationshipData() {
     setRegionState(code);
   }
 
-  // ── Your Name (for share previews) ────────────────────────────────────────
+  // ── User profile ────────────────────────────────────────────────────────────
   const [yourName, setYourNameState] = useState(
     () => localStorage.getItem(KEYS.yourName) || ''
   );
@@ -106,10 +108,24 @@ export function useRelationshipData() {
     setYourNameState(name);
   }
 
-  // ── Gift Status per person per year ────────────────────────────────────────
-  // statusMap: { "personId_2025": "pending"|"ordered"|"gifted" }
-  const [statusMap, setStatusMap] = useState(() => load(KEYS.status, {}));
+  const [userEmail, setUserEmailState] = useState(
+    () => localStorage.getItem(KEYS.userEmail) || ''
+  );
+  function setUserEmail(email) {
+    localStorage.setItem(KEYS.userEmail, email);
+    setUserEmailState(email);
+  }
 
+  const [userPhone, setUserPhoneState] = useState(
+    () => localStorage.getItem(KEYS.userPhone) || ''
+  );
+  function setUserPhone(phone) {
+    localStorage.setItem(KEYS.userPhone, phone);
+    setUserPhoneState(phone);
+  }
+
+  // ── Gift Status ─────────────────────────────────────────────────────────────
+  const [statusMap, setStatusMap] = useState(() => load(KEYS.status, {}));
   useEffect(() => { save(KEYS.status, statusMap); }, [statusMap]);
 
   function giftStatusKey(personId) {
@@ -119,51 +135,38 @@ export function useRelationshipData() {
     return statusMap[giftStatusKey(personId)] || 'pending';
   }
   function cycleGiftStatus(personId) {
-    const cycle = { pending: 'ordered', ordered: 'gifted', gifted: 'pending' };
+    const cycle   = { pending: 'ordered', ordered: 'gifted', gifted: 'pending' };
     const current = getGiftStatus(personId);
     const next    = cycle[current];
     setStatusMap(prev => ({ ...prev, [giftStatusKey(personId)]: next }));
     return next;
   }
 
-  // ── Gift History log ───────────────────────────────────────────────────────
-  // Each entry: { id, personId, personName, giftName, giftQuery, date, year, eventType }
+  // ── Gift History ────────────────────────────────────────────────────────────
   const [history, setHistory] = useState(() => load(KEYS.history, []));
-
   useEffect(() => { save(KEYS.history, history); }, [history]);
 
   function addHistoryEntry(entry) {
-    const record = {
-      id:         crypto.randomUUID(),
-      date:       new Date().toISOString(),
-      year:       new Date().getFullYear(),
-      ...entry,
-    };
+    const record = { id: crypto.randomUUID(), date: new Date().toISOString(), year: new Date().getFullYear(), ...entry };
     setHistory(prev => [record, ...prev]);
     return record;
   }
-
   function getLastGiftForPerson(personId) {
     const year = new Date().getFullYear();
     return history.find(h => h.personId === personId && h.year === year - 1) || null;
   }
-
   function getHistoryForPerson(personId) {
     return history.filter(h => h.personId === personId);
   }
 
   return {
-    // People CRUD
     people, addPerson, updatePerson, deletePerson,
-    // Onboarding
     onboarded, completeOnboarding,
-    // Region
     region, setRegion,
-    // Your name
     yourName, setYourName,
-    // Gift status
+    userEmail, setUserEmail,
+    userPhone, setUserPhone,
     getGiftStatus, cycleGiftStatus,
-    // History
     history, addHistoryEntry, getLastGiftForPerson, getHistoryForPerson,
   };
 }

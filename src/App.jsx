@@ -24,6 +24,8 @@ export default function App() {
     onboarded, completeOnboarding,
     region, setRegion,
     yourName, setYourName,
+    userEmail, setUserEmail,
+    userPhone, setUserPhone,
     getGiftStatus, cycleGiftStatus,
     history, addHistoryEntry, getLastGiftForPerson,
   } = useRelationshipData();
@@ -63,12 +65,7 @@ export default function App() {
   if (!onboarded) {
     return (
       <>
-        <Onboarding
-          onAdd={addPerson}
-          onComplete={completeOnboarding}
-          onRegionChange={setRegion}
-          region={region}
-        />
+        <Onboarding onComplete={completeOnboarding} />
         {importPerson && (
           <ImportModal
             person={importPerson}
@@ -236,8 +233,10 @@ export default function App() {
 
         {activeTab === 'settings' && (
           <SettingsTab
-            region={region} onRegionChange={setRegion}
-            yourName={yourName} onYourNameChange={setYourName}
+            region={region}         onRegionChange={setRegion}
+            yourName={yourName}     onYourNameChange={setYourName}
+            userEmail={userEmail}   onUserEmailChange={setUserEmail}
+            userPhone={userPhone}   onUserPhoneChange={setUserPhone}
             onClearData={handleClearData}
           />
         )}

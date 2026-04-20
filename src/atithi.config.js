@@ -58,3 +58,15 @@ export function getPlatformsForRegion(regionCode, daysUntil) {
     ...(daysUntil <= 3 ? r.platforms.urgent : []),
   ];
 }
+
+/**
+ * Derive a region code from a person's country string.
+ * 'India' → 'IN', everything else → 'US'.
+ * Falls back to the provided defaultCode if given.
+ */
+export function getRegionForPerson(country, defaultCode = 'US') {
+  if (!country) return defaultCode;
+  const c = country.trim().toLowerCase();
+  if (c === 'india' || c === 'in') return 'IN';
+  return 'US';
+}

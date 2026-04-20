@@ -1,130 +1,157 @@
-// ─── Atithi V2 — Onboarding (Region first, then add people) ──────────────────
+// ─── Atithi V2 — Onboarding (Single screen profile form) ─────────────────────
 import { useState } from 'react';
-import { Plus, ChevronRight, Sparkles } from 'lucide-react';
-import AddBirthdayForm from './AddBirthdayForm';
+import { User, Mail, Phone, Globe, ChevronRight, Sparkles } from 'lucide-react';
 import { REGIONS } from '../atithi.config';
 
-const PROMPT_PEOPLE = [
-  { label: 'Mom or Dad',        hint: 'Family · India or US'   },
-  { label: 'Best Friend',       hint: 'Friend · Your city'      },
-  { label: 'Partner / Spouse',  hint: 'Family · Your city'      },
-  { label: 'Close Sibling',     hint: 'Family'                  },
-  { label: 'A couple you love', hint: 'Wedding Anniversary'     },
-];
+export default function Onboarding({ onComplete }) {
+  const [name,    setName]    = useState('');
+  const [email,   setEmail]   = useState('');
+  const [phone,   setPhone]   = useState('');
+  const [region,  setRegion]  = useState('US');
+  const [errors,  setErrors]  = useState({});
 
-export default function Onboarding({ onAdd, onComplete, onRegionChange, region }) {
-  const [step,       setStep]       = useState(1); // 1 = region, 2 = add people
-  const [showForm,   setShowForm]   = useState(false);
-  const [addedCount, setAddedCount] = useState(0);
-
-  function handleSave(formData) {
-    onAdd(formData);
-    setAddedCount(c => c + 1);
-    setShowForm(false);
+  function validate() {
+    const e = {};
+    if (!name.trim())  e.name  = 'Please enter your name';
+    if (!email.trim()) e.email = 'Please enter your email';
+    else if (!/\S+@\S+\.\S+/.test(email)) e.email = 'Enter a valid email address';
+    return e;
   }
 
-  // ── Step 1: Region ────────────────────────────────────────────────────────
-  if (step === 1) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 flex flex-col items-center justify-center px-4 py-12">
-        <div className="mb-6 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center mx-auto mb-3 shadow-lg">
-            <span className="text-3xl">✨</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-800">Welcome to Atithi</h1>
-          <p className="text-slate-500 mt-1 text-sm">Never miss a birthday or anniversary again.</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 border border-slate-100">
-          <h2 className="text-base font-semibold text-slate-800 mb-1">Where are you based?</h2>
-          <p className="text-xs text-slate-400 mb-5">
-            This sets your default marketplace and currency. You can change it later in Settings.
-          </p>
-
-          <div className="flex gap-3 mb-5">
-            {Object.values(REGIONS).map(r => {
-              const isActive = region === r.code;
-              return (
-                <button key={r.code} onClick={() => onRegionChange(r.code)}
-                  className={`flex-1 flex flex-col items-center gap-2 py-5 rounded-xl border-2 transition-all ${
-                    isActive ? 'border-orange-400 bg-orange-50 shadow-sm' : 'border-slate-100 hover:border-slate-200 bg-slate-50'
-                  }`}>
-                  <span className="text-4xl">{r.flag}</span>
-                  <span className={`text-xs font-bold ${isActive ? 'text-orange-700' : 'text-slate-600'}`}>
-                    {r.label}
-                  </span>
-                  <span className="text-[10px] text-slate-400">{r.symbol} {r.currency}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <button onClick={() => setStep(2)}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors">
-            Continue <ChevronRight size={15} />
-          </button>
-        </div>
-      </div>
-    );
+  function handleSubmit(e) {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+    onComplete({ name: name.trim(), email: email.trim(), phone: phone.trim(), region });
   }
 
-  // ── Step 2: Add People ────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 flex flex-col items-center justify-center px-4 py-12">
-      <div className="mb-6 text-center">
+
+      {/* Branding */}
+      <div className="mb-7 text-center">
         <div className="w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center mx-auto mb-3 shadow-lg">
-          <span className="text-3xl">✨</span>
+          <Sparkles size={28} className="text-white" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-800">Add your people</h1>
-        <p className="text-slate-500 mt-1 text-sm">Start with 3–5. You can always add more later.</p>
+        <h1 className="text-2xl font-bold text-slate-800">Welcome to Atithi</h1>
+        <p className="text-slate-500 mt-1 text-sm">Never miss a birthday or anniversary again.</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 border border-slate-100">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-base font-semibold text-slate-800">Your most important people</h2>
-          {addedCount > 0 && (
-            <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">
-              {addedCount} added ✓
-            </span>
-          )}
-        </div>
-        <p className="text-xs text-slate-400 mb-5">Tap a suggestion or add someone custom below.</p>
+      {/* Card */}
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm border border-slate-100 overflow-hidden">
 
-        <div className="space-y-2 mb-5">
-          {PROMPT_PEOPLE.map((p, i) => (
-            <div key={i} onClick={() => setShowForm(true)}
-              className="flex items-center justify-between py-2.5 px-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-orange-50 hover:border-orange-200 transition-colors cursor-pointer group">
-              <div>
-                <p className="text-sm font-medium text-slate-700 group-hover:text-orange-700">{p.label}</p>
-                <p className="text-xs text-slate-400">{p.hint}</p>
-              </div>
-              <Plus size={16} className="text-slate-300 group-hover:text-orange-400 flex-shrink-0" />
+        <div className="px-6 py-5 border-b border-slate-50">
+          <h2 className="text-base font-semibold text-slate-800">Create your profile</h2>
+          <p className="text-xs text-slate-400 mt-0.5">Takes 30 seconds. All data stays on your device.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+
+          {/* Name */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              Your Name <span className="text-rose-400">*</span>
+            </label>
+            <div className="relative">
+              <User size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={name}
+                onChange={e => { setName(e.target.value); setErrors(v => ({ ...v, name: '' })); }}
+                placeholder="e.g. Shubham"
+                className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border outline-none transition-colors
+                  ${errors.name
+                    ? 'border-rose-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-100'
+                    : 'border-slate-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100'}`}
+              />
             </div>
-          ))}
-        </div>
+            {errors.name && <p className="text-xs text-rose-500 mt-1">{errors.name}</p>}
+          </div>
 
-        <button onClick={() => setShowForm(true)}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-sm font-medium text-slate-500 hover:border-orange-300 hover:text-orange-600 transition-colors mb-4">
-          <Plus size={16} /> Add someone else
-        </button>
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              Email ID <span className="text-rose-400">*</span>
+            </label>
+            <div className="relative">
+              <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="email"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setErrors(v => ({ ...v, email: '' })); }}
+                placeholder="you@example.com"
+                className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border outline-none transition-colors
+                  ${errors.email
+                    ? 'border-rose-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-100'
+                    : 'border-slate-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100'}`}
+              />
+            </div>
+            {errors.email && <p className="text-xs text-rose-500 mt-1">{errors.email}</p>}
+          </div>
 
-        <button onClick={onComplete} disabled={addedCount === 0}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-          {addedCount === 0 ? 'Add at least one person to continue' : (
-            <><Sparkles size={15} /> Go to my dashboard <ChevronRight size={15} /></>
-          )}
-        </button>
+          {/* Phone */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              Phone Number <span className="text-slate-300">(optional)</span>
+            </label>
+            <div className="relative">
+              <Phone size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="+1 (555) 000-0000"
+                className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-colors"
+              />
+            </div>
+          </div>
 
-        {addedCount === 0 && (
-          <button onClick={onComplete} className="w-full text-center text-xs text-slate-400 hover:text-slate-600 mt-3 transition-colors">
-            Skip for now →
+          {/* Country / Region */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+              <Globe size={11} className="inline mr-1 mb-0.5" />Country
+            </label>
+            <p className="text-[11px] text-slate-400 mb-2">Sets your default marketplace & currency for gift suggestions.</p>
+            <div className="flex gap-3">
+              {Object.values(REGIONS).map(r => {
+                const active = region === r.code;
+                return (
+                  <button
+                    key={r.code}
+                    type="button"
+                    onClick={() => setRegion(r.code)}
+                    className={`flex-1 flex flex-col items-center gap-1.5 py-3.5 rounded-xl border-2 transition-all
+                      ${active
+                        ? 'border-orange-400 bg-orange-50 shadow-sm'
+                        : 'border-slate-100 hover:border-slate-200 bg-slate-50'}`}>
+                    <span className="text-3xl">{r.flag}</span>
+                    <span className={`text-xs font-bold ${active ? 'text-orange-700' : 'text-slate-600'}`}>
+                      {r.label}
+                    </span>
+                    <span className={`text-[10px] ${active ? 'text-orange-500' : 'text-slate-400'}`}>
+                      {r.symbol} {r.currency}
+                    </span>
+                    {active && (
+                      <span className="text-[10px] font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full">Selected</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 active:bg-orange-700 transition-colors shadow-sm mt-2">
+            Get Started <ChevronRight size={15} />
           </button>
-        )}
-      </div>
+        </form>
 
-      {showForm && (
-        <AddBirthdayForm onSave={handleSave} onClose={() => setShowForm(false)} editData={null} />
-      )}
+        <p className="text-center text-[11px] text-slate-400 px-6 pb-5">
+          🔒 No account needed. Everything stays on your device.
+        </p>
+      </div>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
   RELATIONSHIP_STYLES, COUNTRY_CONFIG,
   displayName, milestoneLabel, EVENT_META,
 } from '../utils/birthdayUtils';
+import { getRegionForPerson } from '../atithi.config';
 import GiftSuggestions from './GiftSuggestions';
 import { sharePersonNative, buildShareUrl } from '../utils/shareUtils';
 
@@ -166,7 +167,7 @@ export default function BirthdayCard({ person, onEdit, onDelete, region = 'US', 
       {/* Gift panel */}
       {showGifts && (
         <div className="border-t border-slate-100 bg-white px-5 py-4">
-          <GiftSuggestions person={person} days={days} region={region} />
+          <GiftSuggestions person={person} days={days} region={getRegionForPerson(person.country, region)} />
         </div>
       )}
     </div>

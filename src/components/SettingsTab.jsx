@@ -1,10 +1,19 @@
 // ─── Atithi V2 — Settings Tab ────────────────────────────────────────────────
 import { useState } from 'react';
-import { Globe, Trash2, Info, ChevronRight, User } from 'lucide-react';
+import { Globe, Trash2, Info, ChevronRight, User, Mail, Phone } from 'lucide-react';
 import { REGIONS } from '../atithi.config';
 
-export default function SettingsTab({ region, onRegionChange, yourName, onYourNameChange, onClearData }) {
-  const [nameInput, setNameInput] = useState(yourName || '');
+export default function SettingsTab({
+  region, onRegionChange,
+  yourName, onYourNameChange,
+  userEmail, onUserEmailChange,
+  userPhone, onUserPhoneChange,
+  onClearData,
+}) {
+  const [nameInput,  setNameInput]  = useState(yourName   || '');
+  const [emailInput, setEmailInput] = useState(userEmail  || '');
+  const [phoneInput, setPhoneInput] = useState(userPhone  || '');
+
   return (
     <div className="px-4 py-6 pb-28 max-w-2xl mx-auto space-y-6">
 
@@ -12,42 +21,92 @@ export default function SettingsTab({ region, onRegionChange, yourName, onYourNa
         <Globe size={16} className="text-slate-400" /> Settings
       </h2>
 
-      {/* Your Name for sharing */}
+      {/* Profile */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Your Name</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Your Profile</p>
         </div>
-        <div className="px-4 py-4 space-y-2">
-          <p className="text-xs text-slate-400">
-            Used in share previews — e.g. <span className="font-medium text-slate-600">"{nameInput || 'Your Name'} shared Priya's birthday with you 🎂"</span>
-          </p>
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={nameInput}
-                onChange={e => setNameInput(e.target.value)}
-                placeholder="e.g. Shubham"
-                className="w-full pl-8 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-colors"
-              />
+        <div className="px-4 py-4 space-y-4">
+
+          {/* Name */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block">Your Name</label>
+            <p className="text-xs text-slate-400">
+              Used in share previews — e.g.{' '}
+              <span className="font-medium text-slate-600">"{nameInput || 'Your Name'} shared Priya's birthday with you 🎂"</span>
+            </p>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={nameInput}
+                  onChange={e => setNameInput(e.target.value)}
+                  placeholder="e.g. Shubham"
+                  className="w-full pl-8 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-colors"
+                />
+              </div>
+              <button
+                onClick={() => onYourNameChange(nameInput.trim())}
+                className="px-4 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors">
+                Save
+              </button>
             </div>
-            <button
-              onClick={() => onYourNameChange(nameInput.trim())}
-              className="px-4 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors">
-              Save
-            </button>
+            {yourName && <p className="text-xs text-green-600 font-medium">✓ Saved as "{yourName}"</p>}
           </div>
-          {yourName && (
-            <p className="text-xs text-green-600 font-medium">✓ Saved as "{yourName}"</p>
-          )}
+
+          {/* Email */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block">Email ID</label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="email"
+                  value={emailInput}
+                  onChange={e => setEmailInput(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full pl-8 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-colors"
+                />
+              </div>
+              <button
+                onClick={() => onUserEmailChange(emailInput.trim())}
+                className="px-4 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors">
+                Save
+              </button>
+            </div>
+            {userEmail && <p className="text-xs text-green-600 font-medium">✓ {userEmail}</p>}
+          </div>
+
+          {/* Phone */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block">Phone Number</label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="tel"
+                  value={phoneInput}
+                  onChange={e => setPhoneInput(e.target.value)}
+                  placeholder="+1 (555) 000-0000"
+                  className="w-full pl-8 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-colors"
+                />
+              </div>
+              <button
+                onClick={() => onUserPhoneChange(phoneInput.trim())}
+                className="px-4 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors">
+                Save
+              </button>
+            </div>
+            {userPhone && <p className="text-xs text-green-600 font-medium">✓ {userPhone}</p>}
+          </div>
         </div>
       </div>
 
       {/* Region Toggle */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Region & Currency</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Default Region & Currency</p>
         </div>
         <div className="p-3 flex gap-3">
           {Object.values(REGIONS).map(r => {
@@ -73,7 +132,7 @@ export default function SettingsTab({ region, onRegionChange, yourName, onYourNa
         </div>
         <div className="px-4 pb-3">
           <p className="text-xs text-slate-400">
-            Controls gift card denominations and default marketplace links across the app.
+            Fallback for people whose country isn't set. Gift suggestions always use each person's own country first.
           </p>
         </div>
       </div>
