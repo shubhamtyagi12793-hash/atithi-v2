@@ -1,6 +1,6 @@
 // ─── Atithi V2 — Birthday Card with Status Toggle + Share ────────────────────
-import { useState, useRef, useEffect } from 'react';
-import { Pencil, Trash2, Gift, Calendar, MapPin, Share2, Circle, ShoppingBag, CheckCircle2, Link, X } from 'lucide-react';
+import { useState } from 'react';
+import { Pencil, Trash2, Gift, Calendar, MapPin, Share2, Circle, ShoppingBag, CheckCircle2, Link } from 'lucide-react';
 import {
   daysUntilBirthday, daysLabel, urgencyColor,
   RELATIONSHIP_STYLES, COUNTRY_CONFIG,
@@ -17,20 +17,9 @@ const STATUS_CONFIG = {
 };
 
 export default function BirthdayCard({ person, onEdit, onDelete, region = 'US', yourName = '', giftStatus = 'pending', onCycleStatus, lastGift }) {
-  const [showGifts,  setShowGifts]  = useState(false);
-  const [shareMenu,  setShareMenu]  = useState(false);
-  const [shareMsg,   setShareMsg]   = useState('');
-  const shareRef = useRef(null);
-
-  // Close share menu when clicking outside
-  useEffect(() => {
-    if (!shareMenu) return;
-    function handleClick(e) {
-      if (shareRef.current && !shareRef.current.contains(e.target)) setShareMenu(false);
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [shareMenu]);
+  const [showGifts, setShowGifts] = useState(false);
+  const [shareMsg,  setShareMsg]  = useState('');
+  const [copyMsg,   setCopyMsg]   = useState('');
 
   const days      = daysUntilBirthday(person.birthday);
   const colors    = urgencyColor(days);
@@ -46,18 +35,16 @@ export default function BirthdayCard({ person, onEdit, onDelete, region = 'US', 
     : person.name.charAt(0).toUpperCase();
 
   async function handleNativeShare() {
-    setShareMenu(false);
-    const result = await sharePersonNative(person, yourName);
-    setShareMsg(result === 'copied' ? 'Link copied!' : 'Shared!');
-    setTimeout(() => setShareMsg(''), 2500);
+    await sharePersonNative(person, yourName);
+    setShareMsg('Shared!');
+    setTimeout(() => setShareMsg(''), 2000);
   }
 
   async function handleCopyLink() {
-    setShareMenu(false);
     const url = buildShareUrl(person, yourName);
     await navigator.clipboard.writeText(url);
-    setShareMsg('Link copied!');
-    setTimeout(() => setShareMsg(''), 2500);
+    setCopyMsg('Copied!');
+    setTimeout(() => setCopyMsg(''), 2000);
   }
 
   return (
@@ -138,40 +125,29 @@ export default function BirthdayCard({ person, onEdit, onDelete, region = 'US', 
               <Gift size={17} />
             </button>
 
-            {/* Share — mini menu */}
-            <div className="relative" ref={shareRef}>
-              <button onClick={() => setShareMenu(v => !v)} title="Share contact"
-                className={`p-2 rounded-xl transition-colors ${shareMenu ? 'bg-orange-100 text-orange-600' : 'text-slate-400 hover:bg-slate-100 hover:text-orange-500'}`}>
+            {/* Share via apps (WhatsApp, iMessage etc.) */}
+            <div className="relative">
+              <button onClick={handleNativeShare} title="Share via WhatsApp, iMessage…"
+                className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-orange-500 transition-colors">
                 <Share2 size={17} />
               </button>
-
-              {/* Toast */}
               {shareMsg && (
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded-lg whitespace-nowrap z-50">
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded-lg whitespace-nowrap">
                   {shareMsg}
                 </span>
               )}
+            </div>
 
-              {/* Dropdown */}
-              {shareMenu && (
-                <div className="absolute right-0 top-10 z-50 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden w-48">
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 pt-3 pb-1">Share contact</p>
-                  <button onClick={handleNativeShare}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-colors">
-                    <Share2 size={15} className="text-slate-400" />
-                    Share via…
-                  </button>
-                  <button onClick={handleCopyLink}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-colors">
-                    <Link size={15} className="text-slate-400" />
-                    Copy link
-                  </button>
-                  <div className="h-px bg-slate-100 mx-3" />
-                  <button onClick={() => setShareMenu(false)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-slate-400 hover:bg-slate-50 transition-colors">
-                    <X size={13} /> Cancel
-                  </button>
-                </div>
+            {/* Copy link */}
+            <div className="relative">
+              <button onClick={handleCopyLink} title="Copy link"
+                className="p-2 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-orange-500 transition-colors">
+                <Link size={17} />
+              </button>
+              {copyMsg && (
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded-lg whitespace-nowrap">
+                  {copyMsg}
+                </span>
               )}
             </div>
 
