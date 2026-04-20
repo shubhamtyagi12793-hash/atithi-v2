@@ -5,20 +5,14 @@
  * Only the fields a recipient needs are serialized (no internal IDs).
  */
 export function encodePerson(person) {
-  // Only include fields that have actual values — keeps the URL short
+  // Only encode the essentials — keeps URLs short and privacy-friendly.
+  // Address/notes stay on the sharer's device; recipient fills those in themselves.
   const payload = {};
-  if (person.name)         payload.n  = person.name;
-  if (person.partnerName)  payload.pn = person.partnerName;
-  if (person.birthday)     payload.b  = person.birthday;
+  if (person.name)        payload.n  = person.name;
+  if (person.partnerName) payload.pn = person.partnerName;
+  if (person.birthday)    payload.b  = person.birthday;
   if (person.eventType && person.eventType !== 'Birthday') payload.et = person.eventType;
   if (person.relationship && person.relationship !== 'Friend') payload.r = person.relationship;
-  if (person.country)      payload.c  = person.country;
-  if (person.state)        payload.st = person.state;
-  if (person.city)         payload.ci = person.city;
-  if (person.address1)     payload.a1 = person.address1;
-  if (person.address2)     payload.a2 = person.address2;
-  if (person.zip)          payload.z  = person.zip;
-  if (person.notes)        payload.no = person.notes;
 
   const json = JSON.stringify(payload);
   const b64  = btoa(unescape(encodeURIComponent(json)));
