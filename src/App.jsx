@@ -23,6 +23,7 @@ export default function App() {
     people, addPerson, updatePerson, deletePerson,
     onboarded, completeOnboarding,
     region, setRegion,
+    yourName, setYourName,
     getGiftStatus, cycleGiftStatus,
     history, addHistoryEntry, getLastGiftForPerson,
   } = useRelationshipData();
@@ -219,6 +220,7 @@ export default function App() {
                       onEdit={p => { setEditData(p); setShowForm(true); }}
                       onDelete={setDeleteId}
                       region={region}
+                      yourName={yourName}
                       giftStatus={getGiftStatus(person.id)}
                       onCycleStatus={() => handleCycleStatus(person)}
                       lastGift={getLastGiftForPerson(person.id)}
@@ -233,7 +235,11 @@ export default function App() {
         {activeTab === 'history' && <HistoryTab history={history} region={region} />}
 
         {activeTab === 'settings' && (
-          <SettingsTab region={region} onRegionChange={setRegion} onClearData={handleClearData} />
+          <SettingsTab
+            region={region} onRegionChange={setRegion}
+            yourName={yourName} onYourNameChange={setYourName}
+            onClearData={handleClearData}
+          />
         )}
       </main>
 

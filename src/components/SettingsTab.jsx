@@ -1,14 +1,48 @@
 // ─── Atithi V2 — Settings Tab ────────────────────────────────────────────────
-import { Globe, Trash2, Info, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { Globe, Trash2, Info, ChevronRight, User } from 'lucide-react';
 import { REGIONS } from '../atithi.config';
 
-export default function SettingsTab({ region, onRegionChange, onClearData }) {
+export default function SettingsTab({ region, onRegionChange, yourName, onYourNameChange, onClearData }) {
+  const [nameInput, setNameInput] = useState(yourName || '');
   return (
     <div className="px-4 py-6 pb-28 max-w-2xl mx-auto space-y-6">
 
       <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
         <Globe size={16} className="text-slate-400" /> Settings
       </h2>
+
+      {/* Your Name for sharing */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Your Name</p>
+        </div>
+        <div className="px-4 py-4 space-y-2">
+          <p className="text-xs text-slate-400">
+            Used in share previews — e.g. <span className="font-medium text-slate-600">"{nameInput || 'Your Name'} shared Priya's birthday with you 🎂"</span>
+          </p>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value)}
+                placeholder="e.g. Shubham"
+                className="w-full pl-8 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none transition-colors"
+              />
+            </div>
+            <button
+              onClick={() => onYourNameChange(nameInput.trim())}
+              className="px-4 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors">
+              Save
+            </button>
+          </div>
+          {yourName && (
+            <p className="text-xs text-green-600 font-medium">✓ Saved as "{yourName}"</p>
+          )}
+        </div>
+      </div>
 
       {/* Region Toggle */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">

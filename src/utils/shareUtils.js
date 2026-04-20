@@ -56,30 +56,32 @@ export function decodePerson(str) {
 }
 
 /**
- * Build the full share URL for a person using the current page origin.
- * Works on localhost AND on Vercel (relative to whatever domain the app lives on).
+ * Build the full share URL for a person.
+ * Routes through /api/share so Vercel can serve personalised OG tags to crawlers.
+ * sharerName is optional — shown in the WhatsApp preview ("Shubham shared…").
  */
-export function buildShareUrl(person) {
+export function buildShareUrl(person, sharerName = '') {
   const encoded = encodePerson(person);
-  return `${window.location.origin}${window.location.pathname}?d=${encoded}`;
+  const base    = `${window.location.origin}/api/share?d=${encoded}`;
+  return sharerName ? `${base}&from=${encodeURIComponent(sharerName)}` : base;
 }
 
 /**
  * Trigger the native mobile share sheet (WhatsApp, iMessage, etc.)
  * Falls back to clipboard copy if Web Share API isn't available.
  */
-export async function sharePersonNative(person) {
-  const url  = buildShareUrl(person);
+export async function sharePersonNative(person, sharerName = '') {
+  const url  = buildShareUrl(person, sharerName);
   const name = person.eventType === 'Wedding Anniversary' && person.partnerName
     ? `${person.name} & ${person.partnerName}`
     : person.name;
-  const text = `🎂 Add ${name}'s birthday to your Atithi app so you never forget!`;
+  const from = sharerName ? `${sharerName} ` : '';
+  const text = `🎂 ${from}wants you to remember ${name}'s ${person.eventType === 'Wedding Anniversary' ? 'anniversary' : 'birthday'} on Atithi!`;
 
   if (navigator.share) {
     await navigator.share({ title: 'Atithi — Remember Every Moment', text, url });
     return 'shared';
   }
-  // Fallback: copy to clipboard
   await navigator.clipboard.writeText(`${text}\n${url}`);
   return 'copied';
 }

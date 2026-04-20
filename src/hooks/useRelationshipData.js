@@ -8,6 +8,7 @@ const KEYS = {
   version:   'atithi_version',
   onboarded: 'atithi_onboarded',
   region:    'atithi_region',
+  yourName:  'atithi_your_name',
   status:    'atithi_gift_status',   // JSON map: { [personId_year]: 'pending'|'ordered'|'gifted' }
   history:   'atithi_gift_history',  // JSON array of history entries
 };
@@ -96,6 +97,15 @@ export function useRelationshipData() {
     setRegionState(code);
   }
 
+  // ── Your Name (for share previews) ────────────────────────────────────────
+  const [yourName, setYourNameState] = useState(
+    () => localStorage.getItem(KEYS.yourName) || ''
+  );
+  function setYourName(name) {
+    localStorage.setItem(KEYS.yourName, name);
+    setYourNameState(name);
+  }
+
   // ── Gift Status per person per year ────────────────────────────────────────
   // statusMap: { "personId_2025": "pending"|"ordered"|"gifted" }
   const [statusMap, setStatusMap] = useState(() => load(KEYS.status, {}));
@@ -149,6 +159,8 @@ export function useRelationshipData() {
     onboarded, completeOnboarding,
     // Region
     region, setRegion,
+    // Your name
+    yourName, setYourName,
     // Gift status
     getGiftStatus, cycleGiftStatus,
     // History
