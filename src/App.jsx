@@ -132,10 +132,23 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setActiveTab('settings')}
-              className="text-xs font-semibold bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full hover:bg-slate-200 transition-colors">
-              {region === 'IN' ? '🇮🇳 ₹' : '🇺🇸 $'}
+            {/* Profile avatar → opens Settings */}
+            <button
+              onClick={() => setActiveTab('settings')}
+              title={`${yourName} · Settings`}
+              className="relative flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors">
+              {/* Initials circle */}
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-400 to-rose-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                {yourName ? yourName.charAt(0).toUpperCase() : '?'}
+              </div>
+              {/* Name (hidden on very small screens) */}
+              <span className="text-xs font-semibold text-slate-600 hidden sm:inline max-w-[80px] truncate">
+                {yourName}
+              </span>
+              {/* Region flag badge */}
+              <span className="text-sm leading-none">{region === 'IN' ? '🇮🇳' : '🇺🇸'}</span>
             </button>
+
             <button onClick={() => { setEditData(null); setShowForm(true); }}
               className="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm">
               <Plus size={16} /> Add

@@ -74,9 +74,12 @@ export function useRelationshipData() {
   }
 
   // ── Onboarding ──────────────────────────────────────────────────────────────
+  // Require yourName to be set — so existing users who pre-date the profile
+  // form are prompted to fill it in on their next visit.
   const [onboarded, setOnboarded] = useState(
-    () => localStorage.getItem(KEYS.onboarded) === 'true'
-       || localStorage.getItem('tithi_onboarded') === 'true'
+    () => (localStorage.getItem(KEYS.onboarded) === 'true'
+        || localStorage.getItem('tithi_onboarded') === 'true')
+      && !!localStorage.getItem(KEYS.yourName)
   );
   function completeOnboarding(profile) {
     // profile: { name, email, phone, region }
